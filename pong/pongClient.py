@@ -83,7 +83,8 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # Your code here to send an update to the server on your paddle's information,
         # where the ball is and the current score.
         # Feel free to change when the score is updated to suit your needs/requirements
-        
+        startInfoToSend = f"{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
+        client.send(startInfoToSend.encode())
         
         # =========================================================================================
 
@@ -156,6 +157,30 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # Send your server update here at the end of the game loop to sync your game with your
         # opponent's game
 
+        # Get information from server
+        respDecode = client.recv(1024).decode()
+
+        # Parse information received from server
+        respList = respDecode.split(",")
+        opponentSync = respList[0]
+        opponentLScore = respList[1]
+        opponentRScore = respList[2]
+        opponentBallX = respList[3]
+        opponentBallY = respList[4]
+        opponentPaddleY = respList[5]
+
+        # Set your information to match opponent information if opponent number is larger than yours
+        if (opponentSync > sync):
+            sync = opponentSync
+            lScore = opponentLScore
+            rScore = opponentRScore
+            ball.rect.x = opponentBallX
+            ball.rect.y = opponentBallY
+            opponentPaddleObj.rect.y = opponentPaddleY
+
+        # Send your information to server
+        endInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
+        client.send(endInfoToSend.encode())
         # =========================================================================================
 
 
@@ -179,16 +204,27 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
 
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
 
+    # Connect to server
+    client.connect((ip, port))
+
+    # Get information from server
+    respDecode = client.recv(1024).decode()
+
+    # Parse information received from server
+    respList = respDecode.split(",")
+    screenWidth = respList[0]
+    screenHeight = respList[1]
+    playerPaddle = respList[2]
 
     # If you have messages you'd like to show the user use the errorLabel widget like so
-    errorLabel.config(text=f"Some update text. You input: IP: {ip}, Port: {port}")
+    errorLabel.config(text=f"You input: IP: {ip}, Port: {port}")
     # You may or may not need to call this, depending on how many times you update the label
     errorLabel.update()     
 
     # Close this window and start the game with the info passed to you from the server
-    #app.withdraw()     # Hides the window (we'll kill it later)
-    #playGame(screenWidth, screenHeight, ("left"|"right"), client)  # User will be either left or right paddle
-    #app.quit()         # Kills the window
+    app.withdraw()     # Hides the window (we'll kill it later)
+    playGame(screenWidth, screenHeight, playerPaddle, client)  # User will be either left or right paddle
+    app.quit()         # Kills the window
 
 
 # This displays the opening screen, you don't need to edit this (but may if you like)
@@ -222,9 +258,9 @@ def startScreen():
     app.mainloop()
 
 if __name__ == "__main__":
-    #startScreen()
+    startScreen()
     
     # Uncomment the line below if you want to play the game without a server to see how it should work
     # the startScreen() function should call playGame with the arguments given to it by the server this is
     # here for demo purposes only
-    playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    # playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))

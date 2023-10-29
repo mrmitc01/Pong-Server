@@ -1,29 +1,30 @@
 Contact Info
 ============
-
 Group Members & Email Addresses:
-
-    Person 1, person1@uky.edu
+    Matt Mitchell, matt.mitchell@uky.edu
     Person 2, person2@uky.edu
 
 Versioning
 ==========
-
-Github Link: 
+Github Link: https://github.com/mrmitc01/Pong-Server
 
 General Info
 ============
-This file describes how to install/run your program and anything else you think the user should know
+To run Pong-Server, you will need to run the server and two clients:
+1. Navigate to the directory named `pong` in this project via command-line interface and enter `python pongServer.py`.
+2. Still in the `pong` directory, enter `python pongClient.py`.
+3. A window will open prompting you for a Server IP and Server Port. Enter either `127.0.0.1` or `localhost` in the Server IP field.
+4. Still in the window, enter `12321` in the Server Port field.
+5. Click the `Join` button.
+6. Repeat steps 2-5 so that a second client can join the game.
 
 Install Instructions
 ====================
-
 Run the following line to install the required libraries for this project:
 
 `pip3 install -r requirements.txt`
 
 Known Bugs
 ==========
-- The server doesn't work because the logic isn't yet written.
-- The client doesn't speak to the server
+- The server doesn't work because the logic isn't yet written
 

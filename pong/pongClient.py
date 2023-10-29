@@ -1,9 +1,12 @@
 # =================================================================================================
-# Contributing Authors:	    <Anyone who touched the code>
-# Email Addresses:          <Your uky.edu email addresses>
-# Date:                     <The date the file was last edited>
-# Purpose:                  <How this file contributes to the project>
-# Misc:                     <Not Required.  Anything else you might want to include>
+# Contributing Authors:	    Matt Mitchell
+# Email Addresses:          matt.mitchell@uky.edu
+# Date:                     10-28-23
+# Purpose:                  To communicate with the server to relay and receive information about
+#                           the current game state. The client is responsible for sending the
+#                           location of the user’s Pong paddle to the server. It will receive from
+#                           the server the location of the other player’s paddle, the location of
+#                           the ball, and the current score.
 # =================================================================================================
 
 import pygame
@@ -11,11 +14,12 @@ import tkinter as tk
 import sys
 import socket
 
+from time import sleep
 from assets.code.helperCode import *
 
-# This is the main game loop.  For the most part, you will not need to modify this.  The sections
-# where you should add to the code are marked.  Feel free to change any part of this project
-# to suit your needs.
+# This is the main game loop. For the most part, you will not need to modify this. The sections
+# where you should add to the code are marked. Feel free to change any part of this project to
+# suit your needs.
 def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.socket) -> None:
     
     # Pygame inits
@@ -81,11 +85,10 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
         # =========================================================================================
         # Your code here to send an update to the server on your paddle's information,
-        # where the ball is and the current score.
-        # Feel free to change when the score is updated to suit your needs/requirements
+        # where the ball is, and the current score. Feel free to change when the score is updated
+        # to suit your needs/requirements.
         startInfoToSend = f"{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
         client.send(startInfoToSend.encode())
-        
         # =========================================================================================
 
         # Update the player paddle and opponent paddle's location on the screen
@@ -149,9 +152,9 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         pygame.display.update([topWall, bottomWall, ball, leftPaddle, rightPaddle, scoreRect, winMessage])
         clock.tick(60)
         
-        # This number should be synchronized between you and your opponent.  If your number is larger
-        # then you are ahead of them in time, if theirs is larger, they are ahead of you, and you need to
-        # catch up (use their info)
+        # This number should be synchronized between you and your opponent. If your number is larger
+        # then you are ahead of them in time. If theirs is larger then they are ahead of you, and you need to
+        # catch up (use their information).
         sync += 1
         # =========================================================================================
         # Send your server update here at the end of the game loop to sync your game with your
@@ -186,8 +189,8 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
 
 
-# This is where you will connect to the server to get the info required to call the game loop.  Mainly
-# the screen width, height and player paddle (either "left" or "right")
+# This is where you will connect to the server to get the information required to call the game loop.
+# This will mainly be the screen width, height and player paddle (either "left" or "right").
 # If you want to hard code the screen's dimensions into the code, that's fine, but you will need to know
 # which client is which
 def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
@@ -202,19 +205,18 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     # You don't have to use SOCK_STREAM, use what you think is best
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Empty error label and wait 0.5 seconds to provide user with feedback upon pressing join button
+    # Empty the error label and wait 0.5 seconds to provide the user with feedback upon pressing the Join button
     errorLabel.config(text="")
     errorLabel.update()
-    from time import sleep
     sleep(0.5)
 
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
     try:
         # If the user enters an invalid ip or port, throw an exception
         if ip != "127.0.0.1" and ip != "localhost":
-            raise ValueError('Invalid IP- Please use either 127.0.0.1 or localhost')
-        elif not port.isdigit():
-            raise ValueError('Invalid Port- Please use an integer value')
+            raise ValueError('Invalid IP- Please use 127.0.0.1 or localhost')
+        elif port != "12321":
+            raise ValueError('Invalid Port- Please use 12321')
 
         # Connect to server
         client.connect((ip, int(port)))
@@ -233,7 +235,7 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
         # You may or may not need to call this, depending on how many times you update the label
         errorLabel.update()
 
-        # Close this window and start the game with the info passed to you from the server
+        # Close this window and start the game with the information passed to you from the server
         app.withdraw()     # Hides the window (we'll kill it later)
         playGame(screenWidth, screenHeight, playerPaddle, client)  # User will be either left or right paddle
         app.quit()         # Kills the window

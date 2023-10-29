@@ -162,15 +162,15 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
         # Parse information received from server
         respList = respDecode.split(",")
-        opponentSync = respList[0]
-        opponentLScore = respList[1]
-        opponentRScore = respList[2]
-        opponentBallX = respList[3]
-        opponentBallY = respList[4]
-        opponentPaddleY = respList[5]
+        opponentSync = int(respList[0])
+        opponentLScore = int(respList[1])
+        opponentRScore = int(respList[2])
+        opponentBallX = int(respList[3])
+        opponentBallY = int(respList[4])
+        opponentPaddleY = int(respList[5])
 
         # Set your information to match opponent information if opponent number is larger than yours
-        if (opponentSync > sync):
+        if opponentSync > sync:
             sync = opponentSync
             lScore = opponentLScore
             rScore = opponentRScore
@@ -202,29 +202,51 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     # You don't have to use SOCK_STREAM, use what you think is best
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    # Empty error label and wait 0.5 seconds to provide user with feedback upon pressing join button
+    errorLabel.config(text="")
+    errorLabel.update()
+    from time import sleep
+    sleep(0.5)
+
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
+    try:
+        # If the user enters an invalid ip or port, throw an exception
+        if ip != "127.0.0.1" and ip != "localhost":
+            raise ValueError('Invalid IP- Please use either 127.0.0.1 or localhost')
+        elif not port.isdigit():
+            raise ValueError('Invalid Port- Please use an integer value')
 
-    # Connect to server
-    client.connect((ip, port))
+        # Connect to server
+        client.connect((ip, int(port)))
 
-    # Get information from server
-    respDecode = client.recv(1024).decode()
+        # Get information from server
+        respDecode = client.recv(1024).decode()
 
-    # Parse information received from server
-    respList = respDecode.split(",")
-    screenWidth = respList[0]
-    screenHeight = respList[1]
-    playerPaddle = respList[2]
+        # Parse information received from server
+        respList = respDecode.split(",")
+        screenWidth = int(respList[0])
+        screenHeight = int(respList[1])
+        playerPaddle = respList[2]
 
-    # If you have messages you'd like to show the user use the errorLabel widget like so
-    errorLabel.config(text=f"You input: IP: {ip}, Port: {port}")
-    # You may or may not need to call this, depending on how many times you update the label
-    errorLabel.update()     
+        # If you have messages you'd like to show the user use the errorLabel widget like so
+        errorLabel.config(text=f"Your input: IP- {ip}, Port- {port}")
+        # You may or may not need to call this, depending on how many times you update the label
+        errorLabel.update()
 
-    # Close this window and start the game with the info passed to you from the server
-    app.withdraw()     # Hides the window (we'll kill it later)
-    playGame(screenWidth, screenHeight, playerPaddle, client)  # User will be either left or right paddle
-    app.quit()         # Kills the window
+        # Close this window and start the game with the info passed to you from the server
+        app.withdraw()     # Hides the window (we'll kill it later)
+        playGame(screenWidth, screenHeight, playerPaddle, client)  # User will be either left or right paddle
+        app.quit()         # Kills the window
+    except ConnectionRefusedError:
+        # Update error label when there is a connection error
+        errorLabel.config(text="Unable to connect to server")
+        errorLabel.update()
+    except ValueError as invalidInput:
+        # Update error label when there is invalid user input
+        errorLabel.config(text=invalidInput)
+        errorLabel.update()
+    
+
 
 
 # This displays the opening screen, you don't need to edit this (but may if you like)
@@ -258,9 +280,10 @@ def startScreen():
     app.mainloop()
 
 if __name__ == "__main__":
+    # Comment out startScreen and uncomment playGame below to play the game without a server to see how it
+    # should work
     startScreen()
     
-    # Uncomment the line below if you want to play the game without a server to see how it should work
-    # the startScreen() function should call playGame with the arguments given to it by the server this is
+    # The startScreen() function should call playGame with the arguments given to it by the server, this is
     # here for demo purposes only
-    # playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    #playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))

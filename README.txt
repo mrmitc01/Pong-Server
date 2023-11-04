@@ -2,6 +2,7 @@ Contact Info
 ============
 Group Members & Email Addresses:
     Matt Mitchell, matt.mitchell@uky.edu
+    Cameron Egbert, cmeg225@uky.edu
     Person 2, person2@uky.edu
 
 Versioning

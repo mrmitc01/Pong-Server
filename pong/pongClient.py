@@ -1,7 +1,7 @@
 # =================================================================================================
-# Contributing Authors:	    Matt Mitchell
-# Email Addresses:          matt.mitchell@uky.edu
-# Date:                     10-28-23
+# Contributing Authors:	    Matt Mitchell, Cameron Egbert
+# Email Addresses:          matt.mitchell@uky.edu, cmeg225@uky.edu
+# Date:                     11-4-23
 # Purpose:                  To communicate with the server to relay and receive information about
 #                           the current game state. The client is responsible for sending the
 #                           location of the user’s Pong paddle to the server. It will receive from
@@ -179,7 +179,8 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
             rScore = opponentRScore
             ball.rect.x = opponentBallX
             ball.rect.y = opponentBallY
-            opponentPaddleObj.rect.y = opponentPaddleY
+            
+        opponentPaddleObj.rect.y = opponentPaddleY
 
         # Send your information to server
         endInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
@@ -212,11 +213,6 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
 
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
     try:
-        # If the user enters an invalid ip or port, throw an exception
-        if ip != "127.0.0.1" and ip != "localhost":
-            raise ValueError('Invalid IP- Please use 127.0.0.1 or localhost')
-        elif port != "12321":
-            raise ValueError('Invalid Port- Please use 12321')
 
         # Connect to server
         client.connect((ip, int(port)))

@@ -1,6 +1,6 @@
 # =================================================================================================
 # Contributing Authors:	    Sean Evans, Cameron Egbert
-# Email Addresses:          siev223@uky.edu, ???
+# Email Addresses:          siev223@uky.edu,  cmeg225@uky.edu
 # Date:                     11/4/23
 # Purpose:                  Establishes the pong server that will handle player clients. The script
 #                           secures connections between clients and handles the transfer of

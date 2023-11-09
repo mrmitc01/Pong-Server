@@ -150,6 +150,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         pygame.draw.rect(screen, WHITE, bottomWall)
         scoreRect = updateScore(lScore, rScore, screen, WHITE, scoreFont)
         pygame.display.update([topWall, bottomWall, ball, leftPaddle, rightPaddle, scoreRect, winMessage])
+        pygame.display.flip()
         clock.tick(60)
         
         # This number should be synchronized between you and your opponent. If your number is larger
@@ -177,8 +178,9 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
             sync = opponentSync
             lScore = opponentLScore
             rScore = opponentRScore
-            ball.rect.x = opponentBallX
-            ball.rect.y = opponentBallY
+            if lScore > 4 or rScore > 4:
+                ball.rect.x = opponentBallX
+                ball.rect.y = opponentBallY
             
         opponentPaddleObj.rect.y = opponentPaddleY
 

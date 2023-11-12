@@ -27,5 +27,8 @@ Run the following line to install the required libraries for this project:
 
 Known Bugs
 ==========
-- The server doesn't work because the logic isn't yet written
+?
 
+Report Link
+===========
+https://docs.google.com/document/d/1rSTiSA1bA29ip8P_fPfQHIU7kp5A2wdR8KYHFMNEQko/edit?usp=sharing

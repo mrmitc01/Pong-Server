@@ -50,8 +50,8 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
     leftPaddle = Paddle(pygame.Rect(10,paddleStartPosY, paddleWidth, paddleHeight))
     rightPaddle = Paddle(pygame.Rect(screenWidth-20, paddleStartPosY, paddleWidth, paddleHeight))
 
-    #ball = Ball(pygame.Rect(screenWidth/2, screenHeight/2, 5, 5), -5, 0)
-    ball = Ball(pygame.Rect(50, 50, 5, 5), -5, 0)
+    ball = Ball(pygame.Rect(screenWidth/2, screenHeight/2, 5, 5), -5, 0)
+    #ball = Ball(pygame.Rect(50, 50, 5, 5), -5, 0)
 
     if playerPaddle == "left":
         opponentPaddleObj = rightPaddle
@@ -169,18 +169,18 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
         '''
         # Wait
-        while not respDecode:
+        respDecode = ""
+        while respDecode == "":
             respDecode = client.recv(1024).decode()
         '''
-        if (sync % 20 == 0):
         # Parse information received from server
-            respList = respDecode.split(",")
-            sync = int(respList[0])
-            lScore = int(respList[1])
-            rScore = int(respList[2])
-            ball.rect.x = int(respList[3])
-            ball.rect.y = int(respList[4])
-            opponentPaddleObj.rect.y = int(respList[5])
+        respList = respDecode.split(",")
+        sync = int(respList[0])
+        lScore = int(respList[1])
+        rScore = int(respList[2])
+        ball.rect.x = int(respList[3])
+        ball.rect.y = int(respList[4])
+        opponentPaddleObj.rect.y = int(respList[5])
             
         
         #playerPaddleObj.rect.y = int(respList[5])

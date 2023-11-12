@@ -83,16 +83,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
             elif event.type == pygame.KEYUP:
                 playerPaddleObj.moving = ""
-
-        # =========================================================================================
-        # Your code here to send an update to the server on your paddle's information,
-        # where the ball is, and the current score. Feel free to change when the score is updated
-        # to suit your needs/requirements.
-        #startInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y},{opponentPaddleObj.rect.y}"
-        startInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
-        client.send(startInfoToSend.encode())
-        # =========================================================================================
-
+                
         # Update the player paddle and opponent paddle's location on the screen
         for paddle in [playerPaddleObj, opponentPaddleObj]:
             if paddle.moving == "down":
@@ -159,6 +150,16 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # then you are ahead of them in time. If theirs is larger then they are ahead of you, and you need to
         # catch up (use their information).
         sync += 1
+
+        # =========================================================================================
+        # Your code here to send an update to the server on your paddle's information,
+        # where the ball is, and the current score. Feel free to change when the score is updated
+        # to suit your needs/requirements.
+        #startInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y},{opponentPaddleObj.rect.y}"
+        startInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
+        client.send(startInfoToSend.encode())
+        # =========================================================================================
+        
         # =========================================================================================
         # Send your server update here at the end of the game loop to sync your game with your
         # opponent's game
@@ -171,15 +172,17 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         while not respDecode:
             respDecode = client.recv(1024).decode()
         '''
-
+        if (sync % 20 == 0):
         # Parse information received from server
-        respList = respDecode.split(",")
-        sync = int(respList[0])
-        lScore = int(respList[1])
-        rScore = int(respList[2])
-        ball.rect.x = int(respList[3])
-        ball.rect.y = int(respList[4])
-        opponentPaddleObj.rect.y = int(respList[5])
+            respList = respDecode.split(",")
+            sync = int(respList[0])
+            lScore = int(respList[1])
+            rScore = int(respList[2])
+            ball.rect.x = int(respList[3])
+            ball.rect.y = int(respList[4])
+            opponentPaddleObj.rect.y = int(respList[5])
+            
+        
         #playerPaddleObj.rect.y = int(respList[5])
         #opponentPaddleObj.rect.y = int(respList[6])
 

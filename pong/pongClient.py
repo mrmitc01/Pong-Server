@@ -51,6 +51,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
     rightPaddle = Paddle(pygame.Rect(screenWidth-20, paddleStartPosY, paddleWidth, paddleHeight))
 
     ball = Ball(pygame.Rect(screenWidth/2, screenHeight/2, 5, 5), -5, 0)
+    #ball = Ball(pygame.Rect(50, 50, 5, 5), -5, 0)
 
     if playerPaddle == "left":
         opponentPaddleObj = rightPaddle
@@ -82,15 +83,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
             elif event.type == pygame.KEYUP:
                 playerPaddleObj.moving = ""
-
-        # =========================================================================================
-        # Your code here to send an update to the server on your paddle's information,
-        # where the ball is, and the current score. Feel free to change when the score is updated
-        # to suit your needs/requirements.
-        startInfoToSend = f"{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
-        client.send(startInfoToSend.encode())
-        # =========================================================================================
-
+                
         # Update the player paddle and opponent paddle's location on the screen
         for paddle in [playerPaddleObj, opponentPaddleObj]:
             if paddle.moving == "down":
@@ -157,13 +150,43 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # then you are ahead of them in time. If theirs is larger then they are ahead of you, and you need to
         # catch up (use their information).
         sync += 1
+
+        # =========================================================================================
+        # Your code here to send an update to the server on your paddle's information,
+        # where the ball is, and the current score. Feel free to change when the score is updated
+        # to suit your needs/requirements.
+        #startInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y},{opponentPaddleObj.rect.y}"
+        startInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
+        client.send(startInfoToSend.encode())
+        # =========================================================================================
+        
         # =========================================================================================
         # Send your server update here at the end of the game loop to sync your game with your
         # opponent's game
-
+        
         # Get information from server
         respDecode = client.recv(1024).decode()
 
+        '''
+        # Wait
+        respDecode = ""
+        while respDecode == "":
+            respDecode = client.recv(1024).decode()
+        '''
+        # Parse information received from server
+        respList = respDecode.split(",")
+        sync = int(respList[0])
+        lScore = int(respList[1])
+        rScore = int(respList[2])
+        ball.rect.x = int(respList[3])
+        ball.rect.y = int(respList[4])
+        opponentPaddleObj.rect.y = int(respList[5])
+            
+        
+        #playerPaddleObj.rect.y = int(respList[5])
+        #opponentPaddleObj.rect.y = int(respList[6])
+
+        '''
         # Parse information received from server
         respList = respDecode.split(",")
         opponentSync = int(respList[0])
@@ -178,7 +201,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
             sync = opponentSync
             lScore = opponentLScore
             rScore = opponentRScore
-            if lScore > 4 or rScore > 4:
+            if lScore <= 4 or rScore <= 4:
                 ball.rect.x = opponentBallX
                 ball.rect.y = opponentBallY
             
@@ -187,6 +210,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # Send your information to server
         endInfoToSend = f"{sync},{lScore},{rScore},{ball.rect.x},{ball.rect.y},{playerPaddleObj.rect.y}"
         client.send(endInfoToSend.encode())
+        '''
         # =========================================================================================
 
 

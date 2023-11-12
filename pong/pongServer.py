@@ -34,9 +34,20 @@ lScore = 0
 rScore = 0
 sync = 0
 
+# Alternative game state variables
+ballX1 = 0
+ballX2 = 0
+ballY1 = 0
+ballY2 = 0
+lScore1 = 0
+lScore2 = 0
+rScore1 = 0
+rScore2 = 0
+sync1 = 0
+sync2 = 0
+
 screenWidth = 640
 screenHeight = 480
-playerPaddle = ""
 
 # Lock threads for synchronization
 lock = threading.Lock()
@@ -44,10 +55,11 @@ lock = threading.Lock()
 # Variable to track connected players
 connectedPlayers = 0
 
-# Function to handle a single client
+
 # Function to handle a single client
 def handleClient(clientSocket: socket.socket, playerNumber: int) -> None:
-    global connectedPlayers, player1PaddleY, player2PaddleY, ballX, ballY, lScore, rScore, sync, screenWidth, screenHeight, playerPaddle
+    global connectedPlayers, player1PaddleY, player2PaddleY, ballX, ballY, lScore, rScore, sync
+    global ballX1, ballX2, ballY1, ballY2, lScore1, lScore2, rScore1, rScore2, sync1, sync2
 
     # Initialize player-specific variables
     playerPaddleY = 0
@@ -60,25 +72,18 @@ def handleClient(clientSocket: socket.socket, playerNumber: int) -> None:
         "paddleY": playerPaddleY,
     }
 
-    # Send the player their own game state
-    # Set the appropriate paddle position based on the player number
+    playerGameSettings = {
+        "screenWidth": screenWidth,
+        "screenHeight": screenHeight,
+        "playerPaddle": ""
+    }
     if playerNumber == 1:
-        playerPaddleY = player1PaddleY
-        playerGameSettings = {
-            "screenWidth": screenWidth,
-            "screenHeight": screenHeight,
-            "playerPaddle": "left"
-        }
-    else:
-        playerPaddleY = player2PaddleY
-        playerGameSettings = {
-            "screenWidth": screenWidth,
-            "screenHeight": screenHeight,
-            "playerPaddle": "right"
-        }
-    
+        playerGameSettings["playerPaddle"] = "left"
+    elif playerNumber == 2:
+        playerGameSettings["playerPaddle"] = "right"
+
     clientSocket.send(",".join(map(str, playerGameSettings.values())).encode())
-    
+
     # Wait for both players to connect
     connectedPlayers += 1
     while connectedPlayers < maxClients:
@@ -86,34 +91,45 @@ def handleClient(clientSocket: socket.socket, playerNumber: int) -> None:
 
     while True:
         try:
-            # Receive game updates from the client
             data = clientSocket.recv(1024).decode()
-            if not data:
-                break
 
             # Split the received data
             receivedData = data.split(",")
 
-            if len(receivedData) == 5:
-                # This is the start of the game loop message
-                lScore, rScore, ballX, ballY, playerPaddleY = map(int, receivedData)
-            elif len(receivedData) == 6:
-                # This is the end of the game loop message
-                sync, lScore, rScore, ballX, ballY, playerPaddleY = map(int, receivedData)
-                
-            # Update the game state
-            playerGameState = {
-                "sync": sync,
-                "lScore": lScore,
-                "rScore": rScore,
-                "ballX": ballX,
-                "ballY": ballY,
-                "paddleY": playerPaddleY,
-            }
+            sync, lScore, rScore, ballX, ballY, playerPaddleY = map(int, receivedData)
 
-            # Relay updated game state to the other client
             with lock:
-                # Determine the recipient player's index
+                # Update the game state variables for each player
+                if playerNumber == 1:
+                    sync1 = sync
+                    lScore1 = lScore
+                    rScore1 = rScore
+                    ballX1 = ballX
+                    ballY1 = ballY
+                elif playerNumber == 2:
+                    sync2 = sync
+                    lScore2 = lScore
+                    rScore2 = rScore
+                    ballX2 = ballX
+                    ballY2 = ballY
+
+                # Determine which player's game state to send to the clients based on sync values
+                if sync1 >= sync2:
+                    playerGameState["sync"] = sync1
+                    playerGameState["lScore"] = lScore1
+                    playerGameState["rScore"] = rScore1
+                    playerGameState["ballX"] = ballX1
+                    playerGameState["ballY"] = ballY1
+                elif sync2 > sync1:
+                    playerGameState["sync"] = sync2
+                    playerGameState["lScore"] = lScore2
+                    playerGameState["rScore"] = rScore2
+                    playerGameState["ballX"] = ballX2
+                    playerGameState["ballY"] = ballY2
+
+                playerGameState["paddleY"] = playerPaddleY
+
+                # Send updated game state to both clients
                 if playerNumber == 1:
                     clients[1].send(",".join(map(str, playerGameState.values())).encode())
                 elif playerNumber == 2:
@@ -124,7 +140,6 @@ def handleClient(clientSocket: socket.socket, playerNumber: int) -> None:
             break
 
     clientSocket.close()
-    
 
 # Function to listen for client connections
 def acceptClients():

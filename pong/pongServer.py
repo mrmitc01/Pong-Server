@@ -1,7 +1,7 @@
 # =================================================================================================
 # Contributing Authors:	    Sean Evans, Cameron Egbert, Matt Mitchell
 # Email Addresses:          siev223@uky.edu, cmeg225@uky.edu, 
-# Date:                     11/13/23
+# Date:                     11/14/23
 # Purpose:                  Establishes the pong server that will handle player clients. The script
 #                           secures connections between clients and handles the transfer of
 #                           information between clients while keeping the games synced as best as 
@@ -16,9 +16,26 @@ serverIp = "127.0.0.1"
 serverPort = 12321
 maxClients = 2
 
+isOnASingleComputer = input("Are you running the server and clients on a single computer (enter y for yes or n for no)? ")
+while isOnASingleComputer != "n" and isOnASingleComputer != "y":
+    print("Please enter y for yes or n for no")
+    isOnASingleComputer = input("Are you running the server and clients on a single computer? ")
+
+if isOnASingleComputer == "n":
+    serverIp = input("Please enter an IP address for the server: ")
+
 # Create a socket and bind it to the server IP and port
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serverSocket.bind((serverIp, serverPort))
+
+isConnectionSuccessfull = False
+while not isConnectionSuccessfull:
+    try:
+        serverSocket.bind((serverIp, serverPort))
+        isConnectionSuccessfull = True
+    except:
+        print("Something went wrong")
+        serverIp = input("Please enter an IP address for the server: ")
+
 serverSocket.listen(maxClients)
 
 # Lists to hold client connections and their corresponding threads
@@ -158,7 +175,7 @@ def handleClient(clientSocket: socket.socket, playerNumber: int) -> None:
     clientSocket.close()
 
 
-def acceptClients():
+def acceptClients() -> None:
     # Authors:      Sean Evans
     # Purpose:      This method listens for client connections. When each client connects, it adds the
     #               client to the clients list and starts a new thread that handles the client and

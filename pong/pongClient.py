@@ -221,7 +221,7 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
         # Update the error label when there is a connection error
         errorLabel.config(text="Unable to connect to server")
         errorLabel.update()
-    except ValueError:
+    except (ValueError, socket.gaierror):
         # Update the error label when there is invalid user input
         errorLabel.config(text="Invalid IP/Port")
         errorLabel.update()
